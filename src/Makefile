@@ -49,6 +49,3 @@ build:
 	ar crf $(TARGET) $(TARGET_TEMP)
 	cp $(CXX_HEADERS) ../include/
 	$(CXX) -o $(TARGET_TEST) main.cpp -I. ../lib/libgdsFileParser.a
-
-test:
-	./testParser /usr/share/pharosc/magic/gds/wsclib200/xor3v1x2.gds
