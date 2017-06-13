@@ -42,26 +42,27 @@ using namespace std;
 
 namespace gdsfp
 {
-    unsigned long p_256[8] = {  0x1, 
+    unsigned long p_256[8] = {  0x1,
                                 0x100,
                                 0x10000,
                                 0x1000000,
                                 0x100000000,
                                 0x10000000000,
                                 0x1000000000000,
-                                0x100000000000000 };
+                                0x100000000000000
+                             };
 
     short gdsFileParser::readShort(std::ifstream *input)
     {
         unsigned char p[2];
-        input->read((char*)&p, sizeof(p));
+        input->read((char *)&p, sizeof(p));
         return ((p[0]<<8) | p[1]);
     }
 
     short gdsFileParser::readShort(stringstream *input)
     {
         unsigned char p[2];
-        input->read((char*)&p, sizeof(p));
+        input->read((char *)&p, sizeof(p));
         return ((p[0]<<8) | p[1]);
     }
 
@@ -71,25 +72,31 @@ namespace gdsfp
         unsigned char p[8];
         int exp = 0;
         double man = 0.0;
-        input->read((char*)&p, sizeof(p));
-        if(p[0]>127){
+        input->read((char *)&p, sizeof(p));
+
+        if(p[0]>127) {
             neg = -1;
             exp = p[0] - 192;
-        }else{
+        } else {
             exp = p[0] - 64;
         }
-        for(int i=1; i<8; ++i){
+
+        for(int i=1; i<8; ++i) {
             man+=(double)p[i]/(double)p_256[i];
         }
+
         return man * pow(16, exp) * neg;
     }
 
     void gdsFileParser::readString(stringstream *input, string *str)
     {
         string temp = input->str();
-        for(string::iterator it = temp.begin(); it!=temp.end(); ++it){
-            if((*it)<32||(*it)>127)  // We only want viewable characters.
+
+        for(string::iterator it = temp.begin(); it!=temp.end(); ++it) {
+            if((*it)<32||(*it)>127) { // We only want viewable characters.
                 continue;
+            }
+
             (*str)+=(*it);
         }
     }
@@ -97,19 +104,19 @@ namespace gdsfp
     int gdsFileParser::readInt(stringstream *input)
     {
         unsigned char p[4];
-        input->read((char*)&p[0], sizeof(p));
+        input->read((char *)&p[0], sizeof(p));
         return ((p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3]);
     }
 
     unsigned int gdsFileParser::readUInt(stringstream *input)
     {
         char p[4];
-        input->read((char*)&p[0], sizeof(p));
+        input->read((char *)&p[0], sizeof(p));
         return ((p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3]);
     }
 
-    void gdsFileParser::readTimeStamp(stringstream *input, short *year, 
-                                      short *month, short *day, short *hour, 
+    void gdsFileParser::readTimeStamp(stringstream *input, short *year,
+                                      short *month, short *day, short *hour,
                                       short *minute, short *sec)
     {
         (*year) = readShort(input);
@@ -118,7 +125,8 @@ namespace gdsfp
         (*hour) = readShort(input);
         (*minute) = readShort(input);
         (*sec) = readShort(input);
-        if((*year)<1000){
+
+        if((*year)<1000) {
             (*year)+=1900;
         }
     }
@@ -134,7 +142,7 @@ namespace gdsfp
         readTimeStamp(input, &year, &month, &day, &hour, &minute, &sec);
         onParsedModTime(year, month, day, hour, minute, sec);
     }
- 
+
     void gdsFileParser::readAccessTimeStamp(stringstream *input)
     {
         short year, month, day, hour, minute, sec;
@@ -198,7 +206,7 @@ namespace gdsfp
         unsigned short column, row;
         column = readShort(input);
         row = readShort(input);
-        onParsedColumnsRows(column, row); 
+        onParsedColumnsRows(column, row);
     }
 
     void gdsFileParser::readPathType(stringstream *input)
@@ -274,10 +282,12 @@ namespace gdsfp
         int count = length/8;
         int x[count];
         int y[count];
-        for(int i=0; i<count; ++i){
+
+        for(int i=0; i<count; ++i) {
             x[i] = readInt(input);
             y[i] = readInt(input);
         }
+
         onParsedXY(count, x, y);
     }
 
@@ -363,44 +373,80 @@ namespace gdsfp
         char recType, dataType;
         input->read(&recType, sizeof(recType));
         input->read(&dataType, sizeof(dataType));
-        switch(recType){
+
+        switch(recType) {
             case HEADER:        readHeader(input);              break;
+
             case BGNLIB:        readModTimeStamp(input);
-                                readAccessTimeStamp(input);     break; 
+                readAccessTimeStamp(input);     break;
+
             case LIBNAME:       readLibName(input);             break;
+
             case BGNSTR:        readModTimeStamp(input);
-                                readAccessTimeStamp(input);     break; 
+                readAccessTimeStamp(input);     break;
+
             case UNITS:         readUnits(input);               break;
+
             case STRNAME:       readStrName(input);             break;
+
             case BOUNDARY:      readBoundary(input);            break;
+
             case PATH:          readPath(input);                break;
+
             case ENDEL:         readEndElement(input);          break;
+
             case ENDSTR:        readEndStructure(input);        break;
+
             case ENDLIB:        readEndLib(input);              break;
+
             case COLROW:        readColumnRow(input);           break;
+
             case PATHTYPE:      readPathType(input);            break;
+
             case STRANS:        readStrans(input);              break;
+
             case PRESENTATION:  readPresentation(input);        break;
+
             case TEXT:          readText(input);                break;
+
             case SREF:          readSref(input);                break;
+
             case AREF:          readAref(input);                break;
+
             case SNAME:         readSname(input);               break;
+
             case STRING:        readString(input);              break;
+
             case PROPVALUE:     readPropValue(input);           break;
+
             case XY:            readXY(input);                  break;
+
             case LAYER:         readLayer(input);               break;
+
             case WIDTH:         readWidth(input);               break;
+
             case DATATYPE:      readDataType(input);            break;
+
             case TEXTTYPE:      readTextType(input);            break;
+
             case ANGLE:         readAngle(input);               break;
+
             case MAG:           readMag(input);                 break;
+
             case BGNEXTN:       readBeginExtension(input);      break;
+
             case ENDEXTN:       readEndExtension(input);        break;
+
             case PROPATTR:      readPropertyNumber(input);      break;
+
             case NODE:          readNode(input);                break;
+
             case NODETYPE:      readNodeType(input);            break;
+
             case BOX:           readBox(input);                 break;
+
             case BOXTYPE:       readBoxType(input);             break;
+
             default:
                 break;
         }
@@ -409,24 +455,27 @@ namespace gdsfp
     int gdsFileParser::parse(const char *filePath)
     {
         std::ifstream gdsFile(filePath, ios::in | ios::binary);
+
         if(gdsFile.is_open()) {
-            stringstream stream( ios::in | ios::out | ios::binary);
-            unsigned short length;
+            stringstream stream(ios::in | ios::out | ios::binary);
             unsigned int total = 0;
-            do{
+
+            do {
                 stream.str("");
-                length = readShort(&gdsFile);
-                if(length==0){
+                unsigned short length = readShort(&gdsFile);
+
+                if(length==0) {
                     break;  // We have reached the end of the file.
                 }
+
                 short sub = sizeof(length);
                 char buffer[length - sub];
-                gdsFile.read((char*)&buffer, sizeof(buffer));
+                gdsFile.read((char *)&buffer, sizeof(buffer));
                 total += length;
-                stream.write(buffer, length - sub); 
+                stream.write(buffer, length - sub);
                 parseBuffer(&stream);
             } while(gdsFile.good());
-        }else{
+        } else {
             cerr << "Error: something is wrong with the file." << endl;
             return 1;
         }

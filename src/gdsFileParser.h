@@ -37,17 +37,17 @@
 
 namespace gdsfp
 {
-    class ifstream; 
+    class ifstream;
     class gdsFileParser
     {
     public:
-        int parse(const char* filePath);
+        int parse(const char *filePath);
 
     protected:
         virtual void onParsedGDSVersion(unsigned short version) = 0;
-        virtual void onParsedModTime(short year, short month, short day, 
+        virtual void onParsedModTime(short year, short month, short day,
                                      short hour, short minute, short sec) = 0;
-        virtual void onParsedAccessTime(short year, short month, short day, 
+        virtual void onParsedAccessTime(short year, short month, short day,
                                         short hour, short minute, short sec) = 0;
         virtual void onParsedLibName(const char *libName) = 0;
         virtual void onParsedUnits(double userUnits, double databaseUnits) = 0;
@@ -58,7 +58,7 @@ namespace gdsfp
         virtual void onParsedEndElement() = 0;
         virtual void onParsedEndStructure() = 0;
         virtual void onParsedEndLib() = 0;
-        virtual void onParsedColumnsRows(unsigned short columns, 
+        virtual void onParsedColumnsRows(unsigned short columns,
                                          unsigned short rows) = 0;
         virtual void onParsedPathType(unsigned short pathType) = 0;
         virtual void onParsedStrans(short strans) = 0;
@@ -73,7 +73,7 @@ namespace gdsfp
         virtual void onParsedPropValue(const char *propValue) = 0;
         virtual void onParsedXY(int count, int x[], int y[]) = 0;
         virtual void onParsedLayer(unsigned short layer) = 0;
-        virtual void onParsedWidth(int width) = 0; 
+        virtual void onParsedWidth(int width) = 0;
         virtual void onParsedDataType(unsigned short dataType) = 0;
         virtual void onParsedTextType(unsigned short textType) = 0;
         virtual void onParsedAngle(double angle) = 0;
@@ -86,7 +86,7 @@ namespace gdsfp
 
     private:
         void readString(std::stringstream *input, std::string *str);
-        void readTimeStamp(std::stringstream *input, short *year, short *month, 
+        void readTimeStamp(std::stringstream *input, short *year, short *month,
                            short *day, short *hour, short *minute, short *sec);
         short readShort(std::ifstream *input);
         short readShort(std::stringstream *input);
@@ -98,7 +98,7 @@ namespace gdsfp
         void readAccessTimeStamp(std::stringstream *input);
         void parseBuffer(std::stringstream *input);
         void readLibName(std::stringstream *input);
-        void readUnits(std::stringstream* input);
+        void readUnits(std::stringstream *input);
         void readStrName(std::stringstream *input);
         void readBoundary(std::stringstream *input);
         void readPath(std::stringstream *input);

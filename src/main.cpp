@@ -46,134 +46,138 @@ using namespace std;
 class MyTestParser : public gdsfp::gdsFileParser
 {
 protected:
-    virtual void onParsedGDSVersion(unsigned short version){
+    virtual void onParsedGDSVersion(unsigned short version) {
         cout << "GDSII Version: " << version << endl;
     };
-    virtual void onParsedModTime(short year, short month, short day, 
-                                 short hour, short minute, short sec){
+    virtual void onParsedModTime(short year, short month, short day,
+                                 short hour, short minute, short sec) {
         cout << "Modified Time: " << endl;
-        if(year==0 && month==0){
+
+        if(year==0 && month==0) {
             cout << "\tNot recorded." << endl;
-        }else{
-            cout << "\t" << year << "-" << SET_2W << month <<  "-" << SET_2W << 
-            day << " " << SET_2W << hour << ":" << SET_2W << minute << 
-            ":" << SET_2W << sec << endl;
+        } else {
+            cout << "\t" << year << "-" << SET_2W << month <<  "-" << SET_2W <<
+                 day << " " << SET_2W << hour << ":" << SET_2W << minute <<
+                 ":" << SET_2W << sec << endl;
         }
     };
-    virtual void onParsedAccessTime(short year, short month, short day, 
-                                 short hour, short minute, short sec){
+    virtual void onParsedAccessTime(short year, short month, short day,
+                                    short hour, short minute, short sec) {
         cout << "Accessed Time: " << endl;
-        if(year==0 && month==0){
+
+        if(year==0 && month==0) {
             cout << "\tNot recorded." << endl;
-        }else{
-            cout << "\t" << year << "-" << SET_2W << month <<  "-" << SET_2W << 
-            day << " " << SET_2W << hour << ":" << SET_2W << minute << 
-            ":" << SET_2W << sec << endl;
+        } else {
+            cout << "\t" << year << "-" << SET_2W << month <<  "-" << SET_2W <<
+                 day << " " << SET_2W << hour << ":" << SET_2W << minute <<
+                 ":" << SET_2W << sec << endl;
         }
     };
-    virtual void onParsedLibName(const char *libName){
+    virtual void onParsedLibName(const char *libName) {
         cout << "LibName: " << libName << endl;
     };
-    virtual void onParsedUnits(double userUnits, double dbUnits){
+    virtual void onParsedUnits(double userUnits, double dbUnits) {
         cout << "UserUnits: " << setprecision(9) << fixed << userUnits << endl;
         cout << "DBUnits: " << setprecision(9) << fixed << dbUnits << endl;
     };
-    virtual void onParsedStrName(const char *strName){
+    virtual void onParsedStrName(const char *strName) {
         cout << "StrName: " << strName << endl;
     };
-    virtual void onParsedBoundaryStart(){
+    virtual void onParsedBoundaryStart() {
         cout << "Boundry start" << endl;
     };
-    virtual void onParsedPathStart(){
+    virtual void onParsedPathStart() {
         cout << "Path start" << endl;
     };
-    virtual void onParsedBoxStart(){
+    virtual void onParsedBoxStart() {
         cout << "Box start" << endl;
     };
-    virtual void onParsedEndElement(){
+    virtual void onParsedEndElement() {
         cout << "Element end" << endl;
     };
-    virtual void onParsedEndStructure(){
+    virtual void onParsedEndStructure() {
         cout << "Structure end" << endl;
     };
-    virtual void onParsedEndLib(){
+    virtual void onParsedEndLib() {
         cout << "Lib end" << endl;
     };
-    virtual void onParsedColumnsRows(unsigned short columns, 
-                                     unsigned short rows){
+    virtual void onParsedColumnsRows(unsigned short columns,
+                                     unsigned short rows) {
         cout << "Columns: " << columns << " Rows: " << rows << endl;
     };
-    virtual void onParsedPathType(unsigned short pathType){
+    virtual void onParsedPathType(unsigned short pathType) {
         cout << "PathType: " << pathType << endl;
     };
-    virtual void onParsedStrans(short strans){
+    virtual void onParsedStrans(short strans) {
         cout << "Strans: " << strans << endl;
     };
-    virtual void onParsedPresentation(short font, short valign, 
-                                      short halign){
+    virtual void onParsedPresentation(short font, short valign,
+                                      short halign) {
         cout << "Font: " << font << endl;
         cout << "Valign: " << valign << endl;
         cout << "Halign: " << halign << endl;
     };
-    virtual void onParsedNodeStart(){
+    virtual void onParsedNodeStart() {
         cout << "Node start" << endl;
     };
-    virtual void onParsedTextStart(){
+    virtual void onParsedTextStart() {
         cout << "Text start" << endl;
     };
-    virtual void onParsedSrefStart(){
+    virtual void onParsedSrefStart() {
         cout << "Sref start" << endl;
     };
-    virtual void onParsedArefStart(){
+    virtual void onParsedArefStart() {
         cout << "Aref start" << endl;
     };
-    virtual void onParsedSname(const char *sname){
+    virtual void onParsedSname(const char *sname) {
         cout << "Sname: " << sname << endl;
     };
-    virtual void onParsedString(const char *str){
+    virtual void onParsedString(const char *str) {
         cout << "String: " << str << endl;
     };
-    virtual void onParsedPropValue(const char *propValue){
+    virtual void onParsedPropValue(const char *propValue) {
         cout << "Prop Value: " << propValue << endl;
     };
-    virtual void onParsedXY(int count, int x[], int y[]){
+    virtual void onParsedXY(int count, int x[], int y[]) {
         cout << "XY: " << count << endl;
-        for(int i=0; i<count; ++i){
+
+        for(int i=0; i<count; ++i) {
             cout << "(" << x[i] << "," << y[i] << ")";
         }
+
         cout << endl;
     };
-    virtual void onParsedLayer(unsigned short layer){
+    virtual void onParsedLayer(unsigned short layer) {
         cout << "Layer: " << layer << endl;
     };
-    virtual void onParsedWidth(int width){
+    virtual void onParsedWidth(int width) {
         cout << "Width: " << width << endl;
     };
-    virtual void onParsedDataType(unsigned short dataType){
+    virtual void onParsedDataType(unsigned short dataType) {
         cout << "Data Type: " << dataType << endl;
     };
-    virtual void onParsedTextType(unsigned short textType){
+    virtual void onParsedTextType(unsigned short textType) {
         cout << "Text Type: " << textType << endl;
     };
-    virtual void onParsedAngle(double angle){
+    virtual void onParsedAngle(double angle) {
         cout << "Angle: " << angle << endl;
     };
-    virtual void onParsedMag(double mag){
+    virtual void onParsedMag(double mag) {
         cout << "Mag: " << mag << endl;
     };
-    virtual void onParsedBeginExtension(unsigned short bext){
+    virtual void onParsedBeginExtension(unsigned short bext) {
         cout << "Begin Extension: " << bext << endl;
     };
-    virtual void onParsedEndExtension(unsigned short eext){
+    virtual void onParsedEndExtension(unsigned short eext) {
         cout << "End Extension: " << eext << endl;
     };
-    virtual void onParsedPropertyNumber(unsigned short propNum){
+    virtual void onParsedPropertyNumber(unsigned short propNum) {
         cout << "Property Number: " << propNum << endl;
     };
-    virtual void onParsedNodeType(unsigned short nodeType){
+    virtual void onParsedNodeType(unsigned short nodeType) {
         cout << "Node Type: " << nodeType << endl;
     };
-    virtual void onParsedBoxType(unsigned short boxType){
+    virtual void onParsedBoxType(unsigned short boxType) {
         cout << "Box Type: " << boxType << endl;
     };
 };
@@ -207,10 +211,10 @@ int main(int argc, char *argv[])
         switch(recType){
             case HEADER:        readHeader(input);              break;
             case BGNLIB:        readModTimeStamp(input);
-                                readAccessTimeStamp(input);     break; 
+                                readAccessTimeStamp(input);     break;
             case LIBNAME:       readLibName(input);             break;
             case BGNSTR:        readModTimeStamp(input);
-                                readAccessTimeStamp(input);     break; 
+                                readAccessTimeStamp(input);     break;
             case UNITS:         readUnits(input);               break;
             case STRNAME:       readName(input);                break;
             case BOUNDARY:      readBoundary(input);            break;
@@ -263,7 +267,7 @@ int main(int argc, char *argv[])
                 gdsFile.read((char*)&buffer, sizeof(buffer));
                 //cout << " total: " << total << endl;
                 total += length;
-                stream.write(buffer, length - sub); 
+                stream.write(buffer, length - sub);
                 parseBuffer(&stream);
             } while(gdsFile.good());
         }

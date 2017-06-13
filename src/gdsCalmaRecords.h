@@ -39,10 +39,10 @@
 
 namespace gdsfp
 {
-/*
- *  Record data type
- */
-    enum RecordDataType{
+    /*
+     *  Record data type
+     */
+    enum RecordDataType {
         NO_DATA         = 0x00,
         BIT_ARRAY       = 0x01,
         INTEGER_2       = 0x02,
@@ -52,10 +52,10 @@ namespace gdsfp
         ASCII_STRING    = 0x06
     };
 
-/*
- *  Record type                    Data type
- */
-    enum RecordType{
+    /*
+     *  Record type                    Data type
+     */
+    enum RecordType {
         HEADER          = 0x00,     /* 0x02 INTEGER_2  Start of stream, contains version number of
                                        stream file.
                                        < v3.0  0x0000    0
