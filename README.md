@@ -11,14 +11,24 @@ If you would like to ensure that this library covers a particular file or covera
 
 # Additional Notes
 Calma-GDSII to Layout
+
 Array => Instances
+
 Boundary element => Polygon, Rectangle, Circle, Hole
+
 Box element => Rectangle
+
 Element => Text
+
 Node => None
+
 None => Pin
+
 Path element => Path, Wire, Trace
+
 Plex => None
+
 Sref element => Instance
+
 Structure element => Design
 
