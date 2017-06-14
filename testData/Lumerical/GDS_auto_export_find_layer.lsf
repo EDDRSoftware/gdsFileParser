@@ -1,0 +1,50 @@
+#####################################################
+# Script file: GDS_auto_export_find_layer.lsf
+# Objective: for each object, check its z and z span to find the layer number
+# Associated files: 
+# - GDS_auto_export.lsf
+
+# Copyright 2014 Lumerical Solutions
+#####################################################
+
+z = getnamed(obj_name,"z");
+if (haveproperty("z span")==1) {
+z_span = getnamed(obj_name,"z span");
+}
+if (haveproperty("z span")==0) {
+z_span = getnamed(obj_name,"Base Height"); # for waveguide
+}
+if (round_to_nm==1) {
+  layer_def=round(layer_def*1e9)*1e-9;
+  z=round(z*1e9)*1e-9;
+  z_span=round(z_span*1e9)*1e-9;
+}
+out=find(layer_def(1:layer_no,2)==z);
+format long;
+if (out==0) { 
+  ?'"Error:" Layer number not found. The z of the current object "' + obj_name + '" is ' + num2str(z);
+  ?'The user-defined layer table is: [layer_no, z, z span]';
+  ?num2str(layer_def); 
+  ?'Please double-check this object. If it is due to precision errors, you can enable the "round_to_nm" option in the "GDS_auto_export.lsf".';
+  break;
+}
+else {
+    temp=find(layer_def(1:layer_no,3)==z_span);
+    if (temp==0) { 
+       ?'"Error:" Layer number not found. The z_span of the current object "' + obj_name + '" is ' + num2str(z_span);
+       ?'The user-defined layer table is: [layer_no, z, z span]';
+       ?num2str(layer_def); 
+       ?'Please double-check this object. If it is due to precision errors, you can enable the "round_to_nm" option in the "GDS_auto_export.lsf".';
+       break;
+      }
+    else {
+      if (length(out)==1) { layer=layer_def(out,1); }
+      else {
+        for (jj=1:length(out)) {
+           if (layer_def(out(jj),3)==z_span)     { layer=out(jj);}
+           }
+         }
+     format short;
+     ?"name = \"" + obj_name + "\", layer = " + num2str(layer);
+    }
+}

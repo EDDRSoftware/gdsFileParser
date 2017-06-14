@@ -1,0 +1,84 @@
+#####################################################
+# Script file: GDS_auto_export.lsf
+# Objective: automate the GDS export process
+# Associated files: 
+# - GDS_auto_export_add_cell_to_top.lsf
+# - GDS_auto_export_check_type_and_create_cell.lsf
+# - GDS_auto_export_find_layer.lsf
+# - GDS_auto_export_test.fsp
+# - GDS_auto_export_waveguide.lsf
+
+# Copyright 2014 Lumerical Solutions
+#####################################################
+
+#---------- WORK FLOW ----------#
+# 1. Users put the objects that they want to export into a specific structure group. 
+#    NOTE: The objects here only mean physical structures (i.e., do not include simulation regions, mesh, source, monitor, etc) 
+# 2. Users define the output GDS name, the structure group name, and layer properties.
+#    NOTE: A layer number corresponds to a unique set of z & z span.
+# 3. Users define optional settings, e.g., the number of points for the discretization of circle, ring, custom, and waveguide objects.
+# 4. Lumerical scripts will automatically export the structures to a GDS file.
+
+#-------- NOTES & FUTURE WORK --------#
+# 1. Objects need to have unique names, for a number of reasons:
+#    - it is difficult to manipulate objects using scripts if multiple objects have the same name
+#    - GDS requires unique cell names
+#    In principle, we could make it less strict and add extra numbers to the cell names automatically
+#    e.g., if there are multiple rings in the structure group, we could export ring_1, ring_2, ...
+# 2. Currently, these scripts do not support hierarchy, i.e., all the physical structures need to be directly within the top structure group
+#    However, it is possible to modify the scripts to support hierarchy in the future.
+
+#####################################################
+# User modification section starts here
+
+gds_output='output.gds';    # set output GDS file name
+group_name='export_to_GDS'; # select the structure group to be exported
+
+# define layer properties
+layer_def=[1, 0, 1e-6; 2, 0.25e-6, 0.5e-6; 3, -0.25e-6, 0.5e-6; 4, 0, 0.5e-6]; # layer number, z, z span
+layer_no=size(layer_def);
+layer_no=layer_no(1);
+
+# optional settings
+n_circle=64;  # number of sides to use for circle approximation (64 by default).
+n_ring=64;    # number of slices to use for ring approximation (64 by default).
+n_custom=64;  # number of slices to use for custom approximation (64 by default).
+n_wg=64;      # number of slices to use for waveguide approximation (64 by default).
+
+round_to_nm=0; # round the z and z span to the nearest integer of nm
+
+# End of user modification section
+#####################################################
+
+
+
+#####################################################
+# Lumerical scripts start here.
+# Please take care if any modifications are made!
+
+unselectall;
+groupscope('::model');
+groupscope(group_name);
+selectall;
+MM=getnumber; # get the total number of objects inside the group
+
+f=gdsopen(gds_output); # create the GDS file
+
+# create the subcells 
+for (ii=1:MM) {
+   selectall;
+   obj_name=get('name',ii);  # get the name of each object
+   GDS_auto_export_check_type_and_create_cell;
+}
+
+# create the top cell and add the subcells 
+gdsbegincell(f,group_name);
+for (ii=1:MM) {
+   selectall;
+   obj_name=get('name',ii);
+   GDS_auto_export_add_cell_to_top;
+}
+gdsendcell(f);
+
+unselectall;
+gdsclose(f);

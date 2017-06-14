@@ -1,0 +1,62 @@
+#####################################################
+# Script file: GDS_auto_export_waveguide.lsf
+# Objective: calculate the vertices based on the poles
+# Associated files: 
+# - GDS_auto_export_check_type_and_create_cell.lsf
+
+# Copyright 2014 Lumerical Solutions
+#####################################################
+
+P=get('poles');
+N=size(P);
+N=N(1)-1;
+x0=get('x');
+y0=get('y');
+z0=get('z');
+zspan=get('Base Height');
+W=get('Base Width');
+
+T=matrix(n_wg+1,1);
+theta=matrix(n_wg+1,1);
+V=matrix(n_wg+1,2);
+V_final=matrix(2*(n_wg+1),2);
+
+# calculate the bezier curve
+for (ii=0:n_wg) {
+    t=(ii/(n_wg));
+    T(ii+1)=t;
+    B1=[0,0];
+    for (jj=0:N) {
+       n=N; k=jj;
+       # calulate  binomial coefficients
+       nk=1;
+       if (k>0) {
+         for (zz=1:k) { nk=nk*(n-(k-zz))/zz; }
+       }
+       B1=B1+nk*((1-t)^(N-jj))*(t^jj)*P(jj+1,1:2); }
+       V(ii+1,1)=x0+B1(1,1);
+       V(ii+1,2)=y0+B1(1,2);
+}
+
+# plot(V(1:n_wg+1,1), V(1:n_wg+1,2));
+
+# calculate the normal plane angle (approximation!)
+for (ii=0:n_wg-2) {
+    dx=V(ii+2,1)-V(ii+1,1);
+    dy=V(ii+2,2)-V(ii+1,2);
+    theta1=atan(dy/dx);
+    dx=V(ii+3,1)-V(ii+2,1);
+    dy=V(ii+3,2)-V(ii+2,2);
+    theta2=atan(dy/dx);
+    theta(ii+2)=(theta1+theta2)/2;
+}
+theta(1)=atan((V(2,2)-V(1,2))/(V(2,1)-V(1,1)));
+theta(n_wg+1)=atan((V(n_wg+1,2)-V(n_wg,2))/(V(n_wg+1,1)-V(n_wg,1)));
+
+# calculate the final polygon
+for (ii=0:n_wg) {
+    V_final(ii+1,1)=V(ii+1,1)-W/2*sin(theta(ii+1));
+    V_final(ii+1,2)=V(ii+1,2)+W/2*cos(theta(ii+1));
+    V_final(2*(n_wg+1)-ii,1)=V(ii+1,1)+W/2*sin(theta(ii+1));
+    V_final(2*(n_wg+1)-ii,2)=V(ii+1,2)-W/2*cos(theta(ii+1));
+}

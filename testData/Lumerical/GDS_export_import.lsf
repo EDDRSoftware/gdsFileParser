@@ -1,0 +1,128 @@
+# stage 1: setting up some simple structures in FDTD
+
+deleteall;
+
+addrect;
+set("name","substrate");
+set("x",0);
+set("y",0);
+set("z",0);
+set("x span", 10e-6);
+set("y span", 10e-6);
+set("z span", 1e-6);
+set("material","SiO2 (Glass) - Palik");
+
+addpoly;
+set("name","Silicon_polygon");
+set("x",-3e-6);
+set("y",-2e-6);
+set("z", 1e-6);
+set("z span", 1e-6);
+set("vertices",[0,-1;1,0;-1,0]*1e-6);
+set("material","Si (Silicon) - Palik");
+
+addstructuregroup;
+set("name","Gold_PC_array");
+set("x",0);
+set("y",0);
+set("z",0);
+
+addcircle;
+set("name","circle_1");
+set("x",0);
+set("y",0e-6);
+set("z",1e-6);
+set("z span", 1e-6);
+set("radius", 1e-6);
+set("material","Au (Gold) - CRC");
+addtogroup("Gold_PC_array");
+
+copy;
+set("name","circle_2");
+set("x",3e-6);
+set("y",0);
+copy;
+set("name","circle_3");
+set("x",0);
+set("y",3e-6);
+copy;
+set("name","circle_4");
+set("x",3e-6);
+set("y",3e-6);
+
+setnamed("Gold_PC_array","y",0.5e-6); 
+#  the y-coordinate of "group_1" is shifted by 0.5um, in other words (0,0.5,0)*e-6
+
+#################################################
+
+# stage 2: exporting structure data to a GDS file
+
+f=gdsopen('GDS_export.gds');
+
+# export substrate to cell named 'substrate', in layer 1.
+gdsbegincell(f,'Substrate');
+gdsaddrect(f,1,getnamed ("substrate","x"),     
+               getnamed ("substrate","y"), 
+               getnamed ("substrate","x span"),
+               getnamed ("substrate","y span"));
+gdsendcell(f);
+
+# export polygon to cell named 'Si_polygon', in layer 2.
+x = getnamed("Silicon_polygon","x");
+y = getnamed("Silicon_polygon","y");
+V = getnamed ("Silicon_polygon", "vertices");
+num_vertices = size(V);
+V = V + [linspace(x,x,num_vertices(1)), linspace(y,y,num_vertices(1))];
+gdsbegincell(f,'Si_polygon');
+gdsaddpoly(f,2,V);
+gdsendcell(f);
+
+# export one gold circle to Au_particle cell, in layer 3.   Circle is centered at zero.  
+# This cell will not actually be imported. We only create it to show how the Au_particle_array cell
+# can be created by referencing a different cell.
+gdsbegincell(f,'Au_particle');
+gdsaddcircle(f, 3, 0, 0, getnamed("Gold_PC_array::circle_1", "radius"));
+gdsendcell(f);
+
+# export array of 4 circles by reference to the Au_particle cell.  Also use layer 3.
+# this command can replicate a cell to a new position by dx and dy
+gdsbegincell(f,'Au_particle_array');
+gdsaddref(f,'Au_particle',
+	getnamed("Gold_PC_array::circle_1", "x")+getnamed("Gold_PC_array","x"),
+	getnamed("Gold_PC_array::circle_1", "y")+getnamed("Gold_PC_array","y"));
+gdsaddref(f,'Au_particle',
+	getnamed("Gold_PC_array::circle_2", "x")+getnamed("Gold_PC_array","x"),
+	getnamed("Gold_PC_array::circle_2", "y")+getnamed("Gold_PC_array","y"));
+gdsaddref(f,'Au_particle',
+	getnamed("Gold_PC_array::circle_3", "x")+getnamed("Gold_PC_array","x"),
+	getnamed("Gold_PC_array::circle_3", "y")+getnamed("Gold_PC_array","y"));
+gdsaddref(f,'Au_particle',
+	getnamed("Gold_PC_array::circle_4", "x")+getnamed("Gold_PC_array","x"),
+	getnamed("Gold_PC_array::circle_4", "y")+getnamed("Gold_PC_array","y"));
+gdsendcell(f);
+
+gdsclose(f);
+
+#################################################
+
+# stage 3: importing a .gds file to FDTD
+# Note: If everything is imported properly, there will be two copies of all the objects:
+#       the original objects created in stage 1, and a copy from the GDSII file.
+
+gdsimport('GDS_export.gds','Substrate', 1);
+set("material","SiO2 (Glass) - Palik");
+set("z",0);
+set("z span", 1e-6);
+
+gdsimport('GDS_export.gds','Si_polygon', 2);
+set("material","Si (Silicon) - Palik");
+set("z",1e-6);
+set("z span", 1e-6);
+
+gdsimport('GDS_export.gds','Au_particle_array', 3);
+set("material","Au (Gold) - CRC");
+set("z",1e-6);
+set("z span", 1e-6);
+
+
+

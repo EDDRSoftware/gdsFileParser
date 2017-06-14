@@ -1,0 +1,41 @@
+# add layer builder
+addlayerbuilder;
+
+# set background geometry
+set("x",0);
+set("y",0);
+set("z",0);
+set("x span", 20e-6);
+set("y span", 20e-6);
+
+# add two layers with specified names
+addlayer("substrate");
+addlayer("y-branch");
+
+# load GDS file
+loadgdsfile("layer_builder_y_branch.gds");
+
+# set substrate layer thickness and material
+setlayer("substrate","thickness",2e-6);
+setlayer("substrate","material","SiO2 (Glass) - Palik");
+
+# get list of layers from GDS file
+pattern_name = getlayerlist;
+
+# set patterned layer to use data from the first layer in the GDS file
+setlayer("y-branch","layer number",pattern_name{1});
+setlayer("y-branch","pattern material","Si (Silicon) - Palik");
+
+# set thickness of y-branch layer
+setlayer("y-branch","thickness",0.5e-6);
+
+#gds position reference
+#1 = centered at origin
+#2 = centered at upper-left corner
+#3 = centered at upper-right corner
+#4 = centered at lower-left corner
+#5 = centered at lower-right corner
+#6 = centered at custom coordinates
+set("gds position reference", 6);
+set("gds center x", -5e-6);
+set("gds center y", -10e-6);

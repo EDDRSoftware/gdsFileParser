@@ -1,0 +1,11 @@
+##################################################
+# Import a real GDSII file. 
+# The circuit includes a racetrack ring resonator and two grating couplers.
+
+# Copyright 2014 Lumerical Solutions
+####################################################
+
+gdsimport('GDS_GC_Ring.gds','GC_Ring', 1);
+set("material","Si (Silicon) - Palik");
+set("z", 0.11e-6);
+set("z span", 0.22e-6);

@@ -1,0 +1,161 @@
+#####################################################
+# Script file: GDS_auto_export_check_type_and_create_cell.lsf
+# Objective: for each object, check its type and create the GDS cell
+# Associated files: 
+# - GDS_auto_export.lsf
+# - GDS_auto_export_find_layer.lsf
+# - GDS_auto_export_waveguide.lsf
+
+# Copyright 2014 Lumerical Solutions
+#####################################################
+
+select(obj_name);
+if (get("enabled")==0) {
+# this object is disabled
+?"disabled object detected: ignored";
+} 
+else {
+if (haveproperty('vertices')==1) {
+  # this is a polygon
+  ?"polygon detected";
+  x = getnamed(obj_name,"x");
+  y = getnamed(obj_name,"y");
+  V = getnamed (obj_name, "vertices");
+  num_vertices = size(V);
+  V = V + [linspace(x,x,num_vertices(1)), linspace(y,y,num_vertices(1))];
+  GDS_auto_export_find_layer;
+  gdsbegincell(f,obj_name);
+  gdsaddpoly(f,layer,V);
+  gdsendcell(f);
+}
+else {
+  if ((haveproperty('radius')==1)&(haveproperty('radius 3')~=1)) {
+    # this is a circle, convert to a polygon
+    ?"circle detected: converted to polygon";
+    GDS_auto_export_find_layer;
+    gdsbegincell(f, obj_name);
+    gdsaddcircle(f, layer, getnamed(obj_name, "x"), getnamed(obj_name, "y"), getnamed(obj_name, "radius"), n_circle);
+    gdsendcell(f);
+  }
+  else {
+    if (haveproperty('inner radius')==1) {
+      # this is a ring, convert to a polygon
+      x0=getnamed(obj_name, "x");
+      y0=getnamed(obj_name, "y");
+      r1=getnamed(obj_name, "inner radius");
+      r2=getnamed(obj_name, "outer radius");
+      theta_start=getnamed(obj_name, "theta start");
+      theta_stop=getnamed(obj_name, "theta stop");
+      if (theta_start==theta_stop) {
+          theta_stop = theta_start+360;
+      }
+      V = matrix(2*(n_ring+1),2);
+      for (kk=1:n_ring+1) {
+         theta=theta_start+(kk-1)*(theta_stop-theta_start)/n_ring;
+         theta=theta*pi/180;
+         V(kk,1)=x0+r1*cos(theta);
+         V(kk,2)=y0+r1*sin(theta);
+         V(2*(n_ring+1)-kk+1,1)=x0+r2*cos(theta);
+         V(2*(n_ring+1)-kk+1,2)=y0+r2*sin(theta);
+      }
+      ?"ring detected: converted to polygon";
+      GDS_auto_export_find_layer;
+      gdsbegincell(f,obj_name);
+      gdsaddpoly(f,layer,V);
+      gdsendcell(f);
+    }
+    else {
+      if (haveproperty('radius 3')==1) {
+        # this is a sphere, ignore
+        ?"sphere detected: ignored";
+      }
+      else {
+        if (haveproperty('equation 1')==1) {
+          # this is a custom object, convert to a polygon
+          x0=getnamed(obj_name, "x");
+          y0=getnamed(obj_name, "y");
+          yspan=getnamed(obj_name, "y span");
+          xmin=getnamed(obj_name, "x min");
+          xmax=getnamed(obj_name, "x max");
+          V = matrix(2*(n_custom+1),2);
+          eq1=getnamed(obj_name, "equation 1");
+          if (get('make nonsymmetric')==0) {
+             for (cc=1:n_custom+1) {
+                x=xmin+(cc-1)*(xmax-xmin)/n_custom-x0;
+                x=x*1e6;
+                str='y='+eq1+';';
+                eval(str);
+                y=y/1e6;
+                if (y>yspan/2) {y=yspan/2;}
+                x=x/1e6;
+                V(cc,1)=x+x0;
+                V(cc,2)=y+y0;
+                V(2*(n_custom+1)-cc+1,1)=x+x0;
+                V(2*(n_custom+1)-cc+1,2)=-y+y0;
+             }
+          } 
+          if (get('make nonsymmetric')==1) {
+             for (cc=1:n_custom+1) {
+                x=xmin+(cc-1)*(xmax-xmin)/n_custom-x0;
+                x=x*1e6;
+                str1='y1='+eq1+';';
+                eval(str1);
+                eq2=getnamed(obj_name, "equation 2");
+                str2='y2='+eq2+';';
+                eval(str2);
+                y1=y1/1e6;
+                y2=y2/1e6;
+                if (y1>yspan/2) {y1=yspan/2;}
+                if (y2>yspan/2) {y2=yspan/2;}
+                x=x/1e6;
+                V(cc,1)=x+x0;
+                V(cc,2)=y1+y0;
+                V(2*(n_custom+1)-cc+1,1)=x+x0;
+                V(2*(n_custom+1)-cc+1,2)=-y2+y0;
+             }
+          }  
+          ?"custom detected: converted to polygon";
+          GDS_auto_export_find_layer;
+          gdsbegincell(f,obj_name);
+          gdsaddpoly(f,layer,V);
+          gdsendcell(f);
+        }
+        else {
+          if (haveproperty('surface units')==1) {
+            # this is a surface object, ignore
+            ?"surface detected: ignored";
+          }
+          else {
+            if (haveproperty('poles')==1) {
+              # this is a waveguide object, convert to a polygon
+              ?"waveguide detected: converted to polygon";
+              GDS_auto_export_find_layer;
+              GDS_auto_export_waveguide;
+              gdsbegincell(f,obj_name);
+              gdsaddpoly(f,layer,V_final);
+              gdsendcell(f);
+            }
+            else {
+              if (haveproperty('x span top')==1) {
+                # this is a pyramid, ignore
+                ?"pyramid detected: ignored";
+              }
+              else {
+                # this is a rectangle
+                ?"rectangle detected";
+                GDS_auto_export_find_layer;
+                gdsbegincell(f,obj_name);
+                gdsaddrect(f,layer,getnamed (obj_name,"x"),     
+                getnamed (obj_name,"y"), 
+                getnamed (obj_name,"x span"),
+                getnamed (obj_name,"y span"));
+                gdsendcell(f);
+                }
+              }
+             }
+            }
+          }
+       }			
+    }
+  }
+}

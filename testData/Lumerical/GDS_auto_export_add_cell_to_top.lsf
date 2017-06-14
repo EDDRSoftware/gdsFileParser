@@ -1,0 +1,66 @@
+#####################################################
+# Script file: GDS_auto_export_add_cell_to_top.lsf
+# Objective: add the subcells to the top cell
+# Associated files: 
+# - GDS_auto_export.lsf
+
+# Copyright 2014 Lumerical Solutions
+#####################################################
+
+select(obj_name);
+if (get("enabled")==0) {
+# this object is disabled
+0;
+} 
+else {
+if (haveproperty('vertices')==1) {
+  # this is a polygon
+  gdsaddref(f,obj_name,0,0);
+}
+else {
+  if ((haveproperty('radius')==1)&(haveproperty('radius 3')~=1)) {
+    # this is a circle
+    gdsaddref(f,obj_name,0,0);
+  }
+  else {
+    if (haveproperty('inner radius')==1) {
+      # this is a ring
+      gdsaddref(f,obj_name,0,0);
+    }
+    else {
+      if (haveproperty('radius 3')==1) {
+        # this is a sphere, ignore
+        0;
+      }
+      else {
+        if (haveproperty('equation 1')==1) {
+          # this is a custom object
+          gdsaddref(f,obj_name,0,0);
+        }
+        else {
+          if (haveproperty('surface units')==1) {
+            # this is a surface object, ignore
+            0;
+          }
+          else {
+            if (haveproperty('poles')==1) {
+              # this is a waveguide object
+              gdsaddref(f,obj_name,0,0);
+            }
+            else {
+              if (haveproperty('x span top')==1) {
+                # this is a pyramid, ignore
+                0;
+              }
+              else {
+                # this is a rectangle
+                gdsaddref(f,obj_name,0,0);
+                }
+              }
+             }
+            }
+          }
+       }			
+    }
+  }
+}
