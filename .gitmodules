@@ -1,0 +1,6 @@
+[submodule "testData/caplet"]
+	path = testData/caplet
+	url = https://github.com/yuchsiao/caplet.git
+[submodule "testData/cpw-resonator"]
+	path = testData/cpw-resonator
+	url = https://github.com/axm108/cpw-resonator.git
