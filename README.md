@@ -1,5 +1,5 @@
 # Description
-The gdsFileParser verifies GDSII files.  The parser mechanism exposes GDSII LEF data with callback functionality.
+The gdsFileParser verifies GDSII files.  The parser mechanism exposes GDSII data with callback functionality.
 
 # Limitations
 This library only parses, at the lowest level, the information contained in the GDSII files.  It does not provide an API to store this data in any persistent manner.  This is where the programmer must add their implementation on top of this library to make the data useful.
