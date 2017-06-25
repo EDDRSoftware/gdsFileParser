@@ -24,7 +24,7 @@
 #
 # Changes:
 # 2017-05-05: First & Last Name: What you did. 
-# 2017-06-10: Kevin Nesmith: Initial reading of the index of the OA file.
+# 2017-06-10: Kevin Nesmith: Initial reading of the index of the GDSII file.
 #
 
 
